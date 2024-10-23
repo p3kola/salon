@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import EmployeeForm from "../components/EmployeeForm";
 import IncomeForm from "../components/IncomeForm";
+import EmployeeList from "../components/EmployeeList";
 import RevenueView from "../components/RevenueView";
 
 const Home = () => {
@@ -108,6 +109,15 @@ const Home = () => {
 		}
 	};
 
+	// Hàm xử lý khi xóa một nhân viên
+	const handleDeleteEmployee = async (id) => {
+		try {
+			await axios.delete(`http://103.92.24.44:5000/api/employees/${id}`);
+			fetchEmployees(); // Cập nhật lại danh sách sau khi xóa
+		} catch (error) {
+			console.error("Có lỗi khi xóa nhân viên:", error);
+		}
+	};
 	// Chọn một nhân viên từ danh sách
 	const handleSelectEmployee = (employee) => {
 		setSelectedEmployee(employee);
@@ -146,7 +156,6 @@ const Home = () => {
 		}
 	};
 	//phutd
-	// Gửi yêu cầu thêm nhân viên
 	// Gửi yêu cầu thêm nhân viên
 	const handleFormSubmit = async (employeeData) => {
 		try {
@@ -201,18 +210,19 @@ const Home = () => {
 					{/* Phần trái (tỷ lệ 7): danh sách nhân viên và form nhập thu nhập tách biệt */}
 					<div className="left-section">
 						{/* Danh sách nhân viên */}
+
+						<h1>Danh sách nhân viên</h1>
 						<div className="employee-list-section">
 							<ul className="employee-list">
-								{employees.map((employee) => (
-									<li key={employee._id} onClick={() => handleSelectEmployee(employee)}>
-										{employee.name} ({employee.username}){/* Nút xóa nhân viên */}
-										<button onClick={() => handleDeleteEmployeeById(employee._id)}>Xóa</button>
-									</li>
-								))}
+								<EmployeeList
+									employees={employees}
+									onSelect={handleSelectEmployee} // Truyền hàm handleSelectEmployee dưới dạng prop onSelect
+									onDelete={handleDeleteEmployee}
+								/>
 							</ul>
 						</div>
 
-						{/* tong doanh thu */}
+						{/* Hiển thị RevenueView nếu có nhân viên được chọn */}
 						{selectedEmployee && <RevenueView employeeId={selectedEmployee._id || "salon"} />}
 						{/* {selectedEmployee && <RevenueView employeeId={selectedEmployee._id} />} */}
 
@@ -292,7 +302,7 @@ const Home = () => {
 				</div>
 			)}
 
-			{/* Hiển thị khi thêm nhân viên */}
+			{/* Hiển thị form thêm nhân viên */}
 			{view === "add" && (
 				<div>
 					<h2>Thêm Nhân viên</h2>
